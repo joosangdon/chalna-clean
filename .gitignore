@@ -216,3 +216,10 @@ __marimo__/
 
 # Streamlit
 .streamlit/secrets.toml
+
+# Personal Test Image Files (테스트용 이미지 파일 추적 제외)
+*.jpg
+*.jpeg
+*.png
+*.webp
+# 단, 샘플용 test1, test2 등 기본 파일 외 추가 사진 방지

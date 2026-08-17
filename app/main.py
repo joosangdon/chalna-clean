@@ -1,8 +1,13 @@
 # app/main.py
 
-from fastapi import FastAPI, File, UploadFile
+from fastapi import FastAPI, File, UploadFile as UF
+from typing import Annotated, List
+from pydantic import WithJsonSchema
 from app.core.config import settings
 from app.services.image_service import ImageService
+
+# Swagger UI에서 다중 파일 선택 버튼이 정상 렌더링되도록 바이너리 스키마 지정
+UploadFile = Annotated[UF, WithJsonSchema({"type": "string", "format": "binary"})]
 
 app = FastAPI(
     title=settings.PROJECT_NAME,
@@ -18,16 +23,19 @@ def read_root():
     }
 
 @app.post("/analyze-single")
-async def analyze_single_photo(file: UploadFile = File(...)):
-    # 1. 파일 데이터 읽기
+async def analyze_single_photo(file: UF = File(...)):
     contents = await file.read()
+    analysis_result = ImageService.analyze_image(contents, file.filename)
+    analysis_result.pop("_phash_obj", None)
+    return analysis_result
+
+@app.post("/group-photos")
+async def group_photos_endpoint(files: List[UploadFile] = File(...)):
+    """여러 장의 사진을 업로드받아 유사 사진 그룹 및 Best Shot을 반환합니다."""
+    files_data = []
+    for file in files:
+        contents = await file.read()
+        files_data.append((file.filename, contents))
     
-    # 2. 이미지 서비스로 연산 위임 (Clean Architecture)
-    analysis_result = ImageService.analyze_image(contents)
-    
-    # 3. 최종 결과 조합 반환
-    return {
-        "filename": file.filename,
-        "content_type": file.content_type,
-        **analysis_result
-    }
+    result = ImageService.group_photos(files_data)
+    return result

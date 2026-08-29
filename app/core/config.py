@@ -1,11 +1,14 @@
 # app/core/config.py
 
 class Settings:
-    PROJECT_NAME: str = "찰나정리 (ChalnaClean) API"
-    VERSION: str = "0.1.0"
+    PROJECT_NAME: str = "ChalnaClean"
+    BLUR_THRESHOLD: float = 100.0
+    SIMILARITY_DISTANCE: int = 20
     
-    # 이미지 분석 관련 설정
-    BLUR_THRESHOLD: float = 100.0  # 선명도 점수가 100 미만이면 '흐림'으로 판단
-    SIMILARITY_DISTANCE: int = 20 # Hamming Distance가 5 이하이면 '중복/유사'로 판단
+    # 4주차: 보안 및 입력값 검증 설정
+    MAX_FILE_SIZE: int = 10 * 1024 * 1024  # 파일당 최대 10MB
+    MAX_FILES_COUNT: int = 10              # 1회 최대 업로드 10장
+    ALLOWED_EXTENSIONS: set = {".jpg", ".jpeg", ".png", ".webp"}
+    ALLOWED_MIME_TYPES: set = {"image/jpeg", "image/png", "image/webp"}
 
 settings = Settings()
